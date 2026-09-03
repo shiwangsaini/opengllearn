@@ -1,143 +1,172 @@
 #include "GameWindow.h"
 
 #include <gtc/matrix_transform.hpp>
+#include "Gui.h"
 
-#include <imgui.h>
-#include <imgui_impl_glfw.h>
-#include <imgui_impl_opengl3.h>
-
-// resizeing handle
-static void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    std::cout << "width" << width << "height" << height << '\n';
+
+    int windowWidth, windowHeight;
+    glfwGetWindowSize(window, &windowWidth, &windowHeight);
+
+    int framebufferWidth, framebufferHeight;
+    glfwGetFramebufferSize(window,
+        &framebufferWidth,
+        &framebufferHeight);
+
+    std::cout
+        << "Window: "
+        << windowWidth << " x " << windowHeight
+        << "\nFramebuffer: "
+        << framebufferWidth << " x " << framebufferHeight
+        << '\n';
+
 }
+
+glm::vec3 transA(0.0f, 0.0f, -3.0f);
+glm::vec3 transB(0.0f, 0.0f, -2.0f);
+float rad = 0.0f;
+float Rot[3]{ 1.0f,0.0f,0.0f };
+float prevT = 0.0f;
+float angle = 20.0f;
+
+glm::vec3 cubePositions[] = {
+    glm::vec3(0.0f,  0.0f,  0.0f),
+    glm::vec3(2.0f,  5.0f, -5.0f),
+    glm::vec3(-1.5f, -2.2f, -2.5f),
+    glm::vec3(-3.8f, -2.0f, -12.3f),
+    glm::vec3(2.4f, -0.4f, -3.5f),
+    glm::vec3(-1.7f,  3.0f, -7.5f),
+    glm::vec3(1.3f, -2.0f, -2.5f),
+    glm::vec3(1.5f,  2.0f, -2.5f),
+    glm::vec3(1.5f,  0.2f, -1.5f),
+    glm::vec3(-1.3f,  1.0f, -1.5f)
+};
 
 // Run main game loop
 void GameWindow::run()
 {
+    glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     shader.bind();
     shader.setUniform1i("texture1", 0);
     //shader.setUniform1i("texture2", 1);
 
     glfwSwapInterval(1);
-    
-    ImGui::CreateContext();
-    ImGui::StyleColorsClassic();
-    ImGui_ImplGlfw_InitForOpenGL(m_window, true);
-    ImGui_ImplOpenGL3_Init("#version 330");
 
-    bool show_demo_window = true;
-    bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    Gui gui(m_window);
+    inHandler = InputHandler(m_window);
 
-    glm::vec3 transA(100.0f,100.0f,0.0f);
-    glm::vec3 transB(200.0f,200.0f,0.0f);
-    bool increment = true;
+    // test
+    glEnable(GL_DEPTH_TEST);
+
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(m_window))
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        ImGui_ImplGlfw_NewFrame();
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui::NewFrame();
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
-        texture.bind();
+        glfwPollEvents();
+        gui.CreateFrame();
 
+        texture.bind();
         /* Poll for and process events */
         /* Render here */
-        {
-            glm::mat4 proj = glm::ortho(0.0f, float(m_width), 0.0f, (float)m_height, -1.0f, 1.0f);
-            glm::mat4 view = glm::translate(glm::mat4(1.0f),transA);
-            glm::mat4 model = glm::rotate(view, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-
-            glm::mat4 MVP = (proj * view * model);
-            shader.setUniformMat4f("u_MVP", MVP);
-
-            shader.bind();
-            VertexBuffer.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        }
-        {
-            glm::mat4 proj = glm::ortho(0.0f, float(m_width), 0.0f, (float)m_height, -1.0f, 1.0f);
-            glm::mat4 view = glm::translate(glm::mat4(1.0f), transB);
-            glm::mat4 model = glm::rotate(view, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-
-            glm::mat4 MVP = (proj * view * model);
-            shader.setUniformMat4f("u_MVP", MVP);
-
-            shader.bind();
-            VertexBuffer.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        }
-
         ImGui::Begin("Hello, world!");
-        ImGui::SliderFloat3("Img 1", &transA.x, 0.0f, 980.0f);
-        ImGui::SliderFloat3("Img 2", &transB.x, 0.0f, 980.0f);
-
+        //ImGui::SliderFloat3("Img 1", &transA.x, -10.0f, 10.0f);
+        ImGui::SliderFloat3("Img 1", &Rot[0], -10.0f, 10.0f);
+        ImGui::SliderFloat("Img 1", &rad, -180.0f, 180.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
 
+        ImGuiIO& io = ImGui::GetIO();
 
-        ImGui::Render();
+        float current = (float)glfwGetTime();
+        float dt = (current - prevT);
+        prevT = current;
+
+        if (!io.WantCaptureKeyboard)
+        {
+            inHandler.keyHandle(dt, cameraPos, cameraFront, cameraUp);
+
+        }
+
+        if (!io.WantCaptureMouse)
+        {
+            //inHandler.mouseHandle(dt, cameraPos.x, cameraPos.y, cameraPos.z,m_width, m_height);
+        }
+        inHandler.cameraHandle(cameraFront);
+
+        Draw();
+       
+        gui.Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(m_window);
 
-        glfwPollEvents();
     }
 }
 
 void GameWindow::shutdown()
 {
-    ImGui_ImplOpenGL3_Shutdown();
-    ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
-
-    shader.unbind();
     texture.unbind();
     glfwTerminate();
 }
 
-bool GameWindow::init()
+void GameWindow::Draw()
+{
+
+    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 1000.0f);
+    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    shader.setUniformMat4f("uProj", proj);
+    shader.setUniformMat4f("uView", view);
+
+    for (unsigned int i = 0; i < 10; i++)
+    {
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, cubePositions[i]);
+        model = glm::rotate(model, glm::radians(angle * i), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        shader.setUniformMat4f("uModel", model);
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+}
+
+void GameWindow::init()
 {
     /* Initialize the library */
     if (!glfwInit())
-        return false;
+        throw "Bro gets the L GLFW just dont want to look at you!!";
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     m_window = glfwCreateWindow(m_width, m_height, m_title, NULL, NULL);
+
     glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
     /* Create a windowed mode window and its OpenGL context */
     if (!m_window)
     {
         glfwTerminate();
-        return false;
+        throw "Bro gets the L window is useless just like you!!";
     }
 
     /* Make the window's context current */
     glfwMakeContextCurrent(m_window);
-    m_inputHandler = InputHandler(m_window);
 
     if (!gladLoadGL(glfwGetProcAddress)) {
         // Initialization failed
-        return false;
+        throw "Bro gets the L Glad wont load!!";
     }
 
-    VertexBuffer.bind();
-
     shader.init("Core/Shaders/vertex.shader", "Core/Shaders/fragment.shader");
-    texture = Texture(shader.m_RenderID);
+    texture = Texture(shader.getId());
     texture.CreateTexture("Core/Assets/wall.jpg");
-    //texture.CreateTexture("Core/Assets/mask.jpg");
-    return true;
 }
+

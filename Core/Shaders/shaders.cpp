@@ -4,8 +4,13 @@
 #include <fstream>
 
 
+Shader::Shader()
+{
+}
+
 Shader::~Shader()
 {
+    glUseProgram(0);
     glDeleteProgram(m_RenderID);
 }
 
@@ -14,11 +19,17 @@ void Shader::init(const std::string& vertexShader, const std::string& fragmentSh
     m_RenderID = CreateShader(vertexShader, fragmentShader);
 }
 
-void Shader::bind()
-{ glUseProgram(m_RenderID); }
+void Shader::use()
+{
+    glUseProgram(m_RenderID);
+}
 
-void Shader::unbind()
-{ glUseProgram(0); }
+void Shader::bind()
+{ 
+    this->use();
+    VB.bind();
+    IB.bind();
+}
 
 void Shader::setUniform1i(const char* varName, const GLint& v0)
 {
@@ -29,7 +40,6 @@ void Shader::setUniformMat4f(const char* varName, const glm::mat4& value)
 {
     glUniformMatrix4fv((glGetUniformLocation(m_RenderID, varName)), 1, GL_FALSE, &(value[0][0]));
 }
-
 
 /*
     compile shader takes in the type of shader (vertex or fragment) and the source code, and compiles the shader.

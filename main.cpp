@@ -5,12 +5,12 @@ int main(void)
 {
     GameWindow game(1280, 720, "Game");
 
-    if (!game.init()) {
-        std::cout << "could not run the Game\n";
-        return -1;
+    try {
+        game.init();
+        game.run();
     }
-
-    game.run();
-
+    catch (const char* e) {
+        std::cout << e ;
+    }
     game.shutdown();
 }

@@ -24,13 +24,13 @@
     <ClCompile Include="Core\GameWindow.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Core\VertexBuffer.cpp">
+    <ClCompile Include="Core\Buffers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core\InputHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Core\CallbackFunctions.cpp">
+    <ClCompile Include="Core\Input.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Core\Shaders\shaders.cpp">
@@ -60,6 +60,9 @@
     <ClCompile Include="Dependencies\imgui\imgui_impl_opengl3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Gui.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h">
@@ -77,22 +80,19 @@
     <ClInclude Include="Core\GameWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\VertexBuffer.h">
+    <ClInclude Include="Core\Buffers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\InputHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Core\CallbackFunctions.h">
+    <ClInclude Include="Core\Input.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Shaders\shaders.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Texture.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Core\log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\imgui\imconfig.h">
@@ -120,6 +120,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Dependencies\imgui\imgui_impl_opengl3_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

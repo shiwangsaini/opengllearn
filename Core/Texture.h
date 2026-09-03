@@ -1,12 +1,12 @@
 #pragma once
 
-#include "VertexBuffer.h"
+#include "Shaders/shaders.h"
 
 class Texture
 {
 public:
 	Texture() {}
-	Texture(const int renderID);
+	Texture(unsigned int* renderID);
 	~Texture();
 
 	void CreateTexture(const char* texturePath);
@@ -14,7 +14,7 @@ public:
 	void unbind();
 
 private:
-	unsigned int m_RenderID = 0;
+	unsigned int* m_RenderID = nullptr;
 	std::vector<unsigned int> textureID;
 
 protected:
