@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Input.cpp" />
     <ClCompile Include="Core\Shaders\shaders.cpp" />
     <ClCompile Include="Dependencies\GLAD\src\gl.c" />
@@ -161,6 +162,7 @@
     <ClCompile Include="Core\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Input.h" />
     <ClInclude Include="Core\Shaders\shaders.h" />
     <ClInclude Include="Dependencies\GLAD\include\glad\gl.h" />

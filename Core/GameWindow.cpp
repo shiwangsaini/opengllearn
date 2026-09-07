@@ -1,6 +1,5 @@
 #include "GameWindow.h"
 
-#include <gtc/matrix_transform.hpp>
 #include "Gui.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -56,7 +55,7 @@ void GameWindow::run()
     glfwSwapInterval(1);
 
     Gui gui(m_window);
-    inHandler = InputHandler(m_window);
+    inHandler = InputHandler(m_window, &shader);
 
     // test
     glEnable(GL_DEPTH_TEST);
@@ -89,15 +88,15 @@ void GameWindow::run()
 
         if (!io.WantCaptureKeyboard)
         {
-            inHandler.keyHandle(dt, cameraPos, cameraFront, cameraUp);
-
+            inHandler.keyHandle(dt);
         }
 
         if (!io.WantCaptureMouse)
         {
             //inHandler.mouseHandle(dt, cameraPos.x, cameraPos.y, cameraPos.z,m_width, m_height);
         }
-        inHandler.cameraHandle(cameraFront);
+        inHandler.cameraHandle(dt);
+        inHandler.scrollHandle();
 
         Draw();
        
@@ -118,22 +117,10 @@ void GameWindow::shutdown()
 
 void GameWindow::Draw()
 {
+    inHandler.updateMVP(cubePositions[0]);
 
-    glm::mat4 proj = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.1f, 1000.0f);
-    glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-    shader.setUniformMat4f("uProj", proj);
-    shader.setUniformMat4f("uView", view);
-
-    for (unsigned int i = 0; i < 10; i++)
-    {
-        glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, cubePositions[i]);
-        model = glm::rotate(model, glm::radians(angle * i), glm::vec3(1.0f, 0.0f, 0.0f));
-
-        shader.setUniformMat4f("uModel", model);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    
 }
 
 void GameWindow::init()
@@ -168,5 +155,6 @@ void GameWindow::init()
     shader.init("Core/Shaders/vertex.shader", "Core/Shaders/fragment.shader");
     texture = Texture(shader.getId());
     texture.CreateTexture("Core/Assets/wall.jpg");
+
 }
 

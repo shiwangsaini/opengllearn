@@ -23,11 +23,7 @@ private:
 	const char* m_title = nullptr;
 	GLFWwindow* m_window = nullptr;
 
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-
 	Shader shader;
 	Texture texture;
-	InputHandler inHandler = NULL;
+	InputHandler inHandler;
 };

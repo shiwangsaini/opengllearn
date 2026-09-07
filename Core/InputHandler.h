@@ -2,24 +2,27 @@
 
 #include "Input.h"
 #include <chrono>
-#include <glm.hpp>
+
+#include "Camera.h"
 
 // handle input
 class InputHandler
 {
 public:
 	InputHandler() {};
-	InputHandler(GLFWwindow* window);
+	InputHandler(GLFWwindow* window, Shader* shader);
 	~InputHandler() {};
 
 	//void handleInput(float& deltaTime);
-	void keyHandle(float& dt, glm::vec3& cameraPos, glm::vec3& cameraFront, glm::vec3& cameraUp);
+	void keyHandle(float& dt);
 	void mouseHandle(float& deltaTime, float& x, float& y, float& z, const unsigned int& width, const unsigned int& height);
-	void cameraHandle(glm::vec3& cameraFront);
+	void cameraHandle(float& deltaTime);
+	void scrollHandle();
+	void updateMVP(glm::vec3& Position);
 
 private:
 	GLFWwindow* m_window = nullptr;
-	bool cursorEnabled = false;
+	bool cursorEnabled = true;
 
 	bool escWasPressed = false;
 
@@ -28,7 +31,13 @@ private:
 
 	float lastX = 640.0f;
 	float lastY = 460.0f;
+
+	float lastcameraPos;
+
 	bool firstMouse = true;
+
+	Camera mCamera;
+	Shader* mShader;
 };
 
 // command class to handle actions of input

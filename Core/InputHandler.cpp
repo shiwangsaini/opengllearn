@@ -1,26 +1,27 @@
 #include "InputHandler.h"
 #include <iostream>
 
-InputHandler::InputHandler(GLFWwindow* window) : m_window(window)
+InputHandler::InputHandler(GLFWwindow* window, Shader* shader) : m_window(window), mShader(shader)
 {
 	Input::initInput(m_window);
+	mCamera = Camera(m_window, shader);
 }
 
-void InputHandler::keyHandle(float& dt, glm::vec3& cameraPos, glm::vec3& cameraFront, glm::vec3& cameraUp)
+void InputHandler::keyHandle(float& dt)
 {
 	const float cameraSpeed = 3.0f * dt; // adjust accordingly
 
 	if (Input::isKeyHeld(GLFW_KEY_W)) {
-		cameraPos += cameraSpeed * cameraFront;
+		mCamera.mPos += cameraSpeed * mCamera.mFront;
 	}
 	if (Input::isKeyHeld(GLFW_KEY_S)) {
-		cameraPos -= cameraSpeed * cameraFront;
+		mCamera.mPos -= cameraSpeed * mCamera.mFront;
 	}
 	if (Input::isKeyHeld(GLFW_KEY_A)) {
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		mCamera.mPos -= glm::normalize(glm::cross(mCamera.mFront, mCamera.mUp)) * cameraSpeed;
 	}
 	if (Input::isKeyHeld(GLFW_KEY_D)) {
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		mCamera.mPos += glm::normalize(glm::cross(mCamera.mFront, mCamera.mUp)) * cameraSpeed;
 	}
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
 		if (cursorEnabled)
@@ -51,37 +52,54 @@ void InputHandler::mouseHandle(float& deltaTime, float& x, float& y, float& z, c
 	if (Input::isButtonPressed(GLFW_MOUSE_BUTTON_RIGHT)) std::cout << "pressed RIGHT\t";
 }
 
-void InputHandler::cameraHandle(glm::vec3& cameraFront)
+void InputHandler::cameraHandle(float& deltaTime)
 {
-	MousePos pos = Input::getMousePos();
-	if (firstMouse)
-    {
-        lastX = pos.x;
-        lastY = pos.y;
-        firstMouse = false;
-    }
-  
-    float xoffset = pos.x- lastX;
-    float yoffset = lastY - pos.y;
-    lastX = pos.x;
-    lastY = pos.y;
+	if (cursorEnabled) {
+		MousePos pos = Input::getMousePos();
+		if (firstMouse)
+		{
+			lastX = pos.x;
+			lastY = pos.y;
+			firstMouse = false;
+		}
 
-    float sensitivity = 0.1f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
+		float xoffset = pos.x - lastX;
+		float yoffset = lastY - pos.y;
+		lastX = pos.x;
+		lastY = pos.y;
 
-    yaw   += xoffset;
-    pitch += yoffset;
+		float sensitivity = 0.1f;
+		xoffset *= sensitivity;
+		yoffset *= sensitivity;
 
-    if(pitch > 89.0f)
-        pitch = 89.0f;
-    if(pitch < -89.0f)
-        pitch = -89.0f;
+		yaw += xoffset;
+		pitch += yoffset;
 
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(direction);
+		if (pitch > 89.0f)
+			pitch = 89.0f;
+		if (pitch < -89.0f)
+			pitch = -89.0f;
 
+		glm::vec3 direction;
+		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+		direction.y = sin(glm::radians(pitch));
+		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		mCamera.mFront = (glm::normalize(direction));
+	}
+	else firstMouse = true;
+}
+
+void InputHandler::scrollHandle()
+{
+	mCamera.setFov(Input::m_fov);
+}
+
+void InputHandler::updateMVP(glm::vec3& Position)
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, Position);
+	model = glm::rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	mShader->setUniformMat4f("uModel", model);
+	mCamera.update();
 }

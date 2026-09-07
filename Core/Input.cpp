@@ -6,11 +6,14 @@ KeyAction Input::m_keyAction[1024] = { KeyAction::NOTHING };
 KeyAction Input::m_mouseButtons[8] = { KeyAction::NOTHING };
 MousePos Input::m_mousePos = { 0.0f,0.0f };
 
+float Input::m_fov = 70.0f;
+
 void Input::initInput(GLFWwindow* window)
 {
 	glfwSetKeyCallback(window, key_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_position_callback);
+	glfwSetScrollCallback(window, scroll_callback);
 }
 
 bool Input::isKeyPressed(int key)
@@ -70,6 +73,16 @@ void Input::cursor_position_callback(GLFWwindow* window, double xpos, double ypo
 
 	m_mousePos.x = xpos;
 	m_mousePos.y = ypos;
+}
+
+void Input::scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	float scrollSpeed = 10.0f;
+	m_fov -= (float)yoffset * scrollSpeed;
+	if (m_fov < 1.0f)
+		m_fov = 1.0f;
+	if (m_fov > 75.0f)
+		m_fov = 75.0f;
 }
 
 #pragma endregion
