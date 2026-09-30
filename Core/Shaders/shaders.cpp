@@ -4,8 +4,9 @@
 #include <fstream>
 
 
-Shader::Shader()
+Shader::Shader(const std::string& vertexShader, const std::string& fragmentShader)
 {
+    m_RenderID = CreateShader(vertexShader, fragmentShader);
 }
 
 Shader::~Shader()
@@ -14,9 +15,24 @@ Shader::~Shader()
     glDeleteProgram(m_RenderID);
 }
 
-void Shader::init(const std::string& vertexShader, const std::string& fragmentShader)
+Shader::Shader(Shader&& other) noexcept
+    : m_RenderID(other.m_RenderID)
 {
-    m_RenderID = CreateShader(vertexShader, fragmentShader);
+    other.m_RenderID = 0;
+}
+
+Shader& Shader::operator=(Shader&& other) noexcept
+{
+    if (this != &other)
+    {
+        if (m_RenderID != 0)
+            glDeleteProgram(m_RenderID);
+
+        m_RenderID = other.m_RenderID;
+        other.m_RenderID = 0;
+    }
+
+    return *this;
 }
 
 void Shader::use()
@@ -24,21 +40,52 @@ void Shader::use()
     glUseProgram(m_RenderID);
 }
 
-void Shader::bind()
-{ 
+void Shader::bind(bool t)
+{
     this->use();
-    VB.bind();
-    IB.bind();
 }
 
-void Shader::setUniform1i(const char* varName, const GLint& v0)
+void Shader::setMVP(glm::mat4 M, glm::mat4 V, glm::mat4 P)
 {
-    glUniform1i((glGetUniformLocation(m_RenderID, varName)), v0);
+    setUniformMat4f("uModel", M);
+    setUniformMat4f("uView", V);
+    setUniformMat4f("uProj", P);
+}
+
+void Shader::setUniform1Int(const char* varName, const GLint& v0)
+{
+    glUniform1i(getUniformLoc(varName), v0);
 }
 
 void Shader::setUniformMat4f(const char* varName, const glm::mat4& value)
 {
-    glUniformMatrix4fv((glGetUniformLocation(m_RenderID, varName)), 1, GL_FALSE, &(value[0][0]));
+    glUniformMatrix4fv(getUniformLoc(varName), 1, GL_FALSE, &(value[0][0]));
+}
+
+void Shader::setUniformVec3(const char* varName, const glm::vec3 value)
+{
+    glUniform3f(getUniformLoc(varName), value.x, value.y, value.z);
+
+}
+
+void Shader::setUniform1Float(const char* varName, const float value)
+{
+    glUniform1f(getUniformLoc(varName), value);
+}
+
+
+const int Shader::getUniformLoc(const char* uName)
+{
+    if (m_UniformLocationCache.find(uName) == m_UniformLocationCache.end())
+        return m_UniformLocationCache[uName];
+
+    int loc = glGetUniformLocation(m_RenderID, uName);
+    if (loc == -1) {
+        std::cerr << "Lol Uniform location Not found : " << uName << " <- This\n";
+    }
+    else m_UniformLocationCache[uName] = loc;
+
+    return loc;
 }
 
 /*
@@ -63,7 +110,7 @@ unsigned int Shader::CompileShader(unsigned int type, const std::string& source)
     {
         int length;
         glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
-        char* message = (char*)_malloca(length*sizeof(char));
+        char* message = (char*)_malloca(length * sizeof(char));
 
         glGetShaderInfoLog(id, length, &length, message);
         std::cout << "Failed to compile Shader : " << (type == GL_VERTEX_SHADER ? "Vertex : " : "Fragment : ") << message << std::endl;

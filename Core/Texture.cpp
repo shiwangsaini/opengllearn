@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Texture::Texture(unsigned int* renderID) : m_RenderID(renderID)
+Texture::Texture()
 {
     stbi_set_flip_vertically_on_load(true);
 }
@@ -66,7 +66,7 @@ void Texture::CreateTexture(const char* texturePath)
     }
     else
     {
-        std::cout << "Failed to load texture" << std::endl;
+        std::cout << "\nFailed to load texture" << std::endl;
     }
     stbi_image_free(data);
 }
@@ -87,4 +87,10 @@ void Texture::unbind()
         glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(i));
         glBindTexture(GL_TEXTURE_2D, 0);
     }
+}
+
+const GLint Texture::GetTextureID(const size_t& index)
+{
+    return textureID[index];
+
 }

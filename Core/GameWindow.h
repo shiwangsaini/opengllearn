@@ -8,7 +8,8 @@
 class GameWindow
 {
 public:
-	GameWindow(int width, int height, const char* title) : m_width(width), m_height(height), m_title(title) {}
+	GameWindow();
+	GameWindow(int width, int height, const char* title);
 	~GameWindow() {};
 
 	void init();
@@ -23,7 +24,7 @@ private:
 	const char* m_title = nullptr;
 	GLFWwindow* m_window = nullptr;
 
-	Shader shader;
+	std::vector<Shader> m_Shaders;
 	Texture texture;
-	InputHandler inHandler;
 };
+

@@ -66,6 +66,9 @@
     <ClCompile Include="Core\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Game\BPS\Dungeon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h">
@@ -131,6 +134,9 @@
     <ClInclude Include="Core\Camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Game\BPS\Dungeon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\GLFW\lib\glfw3.lib" />
@@ -138,5 +144,10 @@
   <ItemGroup>
     <None Include="Core\Shaders\vertex.shader" />
     <None Include="Core\Shaders\fragment.shader" />
+    <None Include="Core\Shaders\lightVer.shader" />
+    <None Include="Core\Shaders\lightFrag.shader" />
+    <None Include="Core\Shaders\objVer.shader" />
+    <None Include="Core\Shaders\objFrag.shader" />
+    <None Include="Core\Shaders\objVert2.shader" />
   </ItemGroup>
 </Project>

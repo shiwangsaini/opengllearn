@@ -1,10 +1,11 @@
 #include "InputHandler.h"
 #include <iostream>
 
-InputHandler::InputHandler(GLFWwindow* window, Shader* shader) : m_window(window), mShader(shader)
+InputHandler::InputHandler(GLFWwindow* window, std::vector<Shader>& shaders)
+	: m_window(window), mShaders(shaders)
 {
 	Input::initInput(m_window);
-	mCamera = Camera(m_window, shader);
+	mCamera = Camera(m_window);
 }
 
 void InputHandler::keyHandle(float& dt)
@@ -81,9 +82,9 @@ void InputHandler::cameraHandle(float& deltaTime)
 			pitch = -89.0f;
 
 		glm::vec3 direction;
-		direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-		direction.y = sin(glm::radians(pitch));
-		direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+		direction.x = -(cos(glm::radians(yaw)) * cos(glm::radians(pitch)));
+		direction.y = (cos(glm::radians(pitch)) * sin(glm::radians(yaw)));
+		direction.z = (sin(glm::radians(pitch)));
 		mCamera.mFront = (glm::normalize(direction));
 	}
 	else firstMouse = true;
@@ -94,12 +95,43 @@ void InputHandler::scrollHandle()
 	mCamera.setFov(Input::m_fov);
 }
 
-void InputHandler::updateMVP(glm::vec3& Position)
+void InputHandler::updateMVP(glm::vec3& Position ,const ShaderType& Type)
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, Position);
-	model = glm::rotate(model, glm::radians(20.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	mShader->setUniformMat4f("uModel", model);
-	mCamera.update();
+	// if Simple obj is to update for MVP
+	mShaders[Type].setUniformMat4f("uModel", model);
+	mCamera.update(mShaders[Type]);
+}
+
+void InputHandler::updateMVPScale(glm::vec3& Position, glm::vec3& scale, Shader& shader)
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, Position) * glm::scale(model, scale);
+	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+	shader.setUniformMat4f("uModel", model);
+	mCamera.update(shader);
+}
+
+void InputHandler::updateMVPRotation(glm::vec3& Position, float& radian,float& rotateX, float& rotateY, Shader& shader)
+{
+	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, Position);
+	model = glm::rotate(model, glm::radians(radian), glm::vec3(rotateX, rotateY,0.0f));
+
+	shader.setUniformMat4f("uModel", model);
+	mCamera.update(shader);
+}
+
+void InputHandler::useShader(const ShaderType& Type)
+{
+	mShaders[static_cast<size_t>( Type)].use();
+}
+
+void InputHandler::SetCameraPos(glm::vec3& camPos)
+{
+	mCamera.mPos = camPos;
 }

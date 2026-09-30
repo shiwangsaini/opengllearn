@@ -1,6 +1,7 @@
 #include "GameWindow.h"
 
 #include "Gui.h"
+#include "BPS/Dungeon.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -23,64 +24,42 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 
 }
 
-glm::vec3 transA(0.0f, 0.0f, -3.0f);
-glm::vec3 transB(0.0f, 0.0f, -2.0f);
-float rad = 0.0f;
-float Rot[3]{ 1.0f,0.0f,0.0f };
-float prevT = 0.0f;
-float angle = 20.0f;
-
-glm::vec3 cubePositions[] = {
-    glm::vec3(0.0f,  0.0f,  0.0f),
-    glm::vec3(2.0f,  5.0f, -5.0f),
-    glm::vec3(-1.5f, -2.2f, -2.5f),
-    glm::vec3(-3.8f, -2.0f, -12.3f),
-    glm::vec3(2.4f, -0.4f, -3.5f),
-    glm::vec3(-1.7f,  3.0f, -7.5f),
-    glm::vec3(1.3f, -2.0f, -2.5f),
-    glm::vec3(1.5f,  2.0f, -2.5f),
-    glm::vec3(1.5f,  0.2f, -1.5f),
-    glm::vec3(-1.3f,  1.0f, -1.5f)
-};
-
 // Run main game loop
 void GameWindow::run()
 {
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    shader.bind();
-    shader.setUniform1i("texture1", 0);
-    //shader.setUniform1i("texture2", 1);
-
-    glfwSwapInterval(1);
-
     Gui gui(m_window);
-    inHandler = InputHandler(m_window, &shader);
+    InputHandler inHandler({ m_window, m_Shaders });
 
     // test
     glEnable(GL_DEPTH_TEST);
 
+    float prevT = 0.0f;
+    ImGuiIO& io = ImGui::GetIO();
 
     /* Loop until the user closes the window */
+
+    Dungeon dungeon{&inHandler};
+
+
     while (!glfwWindowShouldClose(m_window))
     {
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+
         glfwPollEvents();
         gui.CreateFrame();
 
-        texture.bind();
+        //texture.bind();
         /* Poll for and process events */
         /* Render here */
         ImGui::Begin("Hello, world!");
         //ImGui::SliderFloat3("Img 1", &transA.x, -10.0f, 10.0f);
-        ImGui::SliderFloat3("Img 1", &Rot[0], -10.0f, 10.0f);
-        ImGui::SliderFloat("Img 1", &rad, -180.0f, 180.0f);
+        //ImGui::SliderFloat3("light pos:", &cubePositions.x, -10.0f, 10.0f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::End();
 
-        ImGuiIO& io = ImGui::GetIO();
 
         float current = (float)glfwGetTime();
         float dt = (current - prevT);
@@ -93,19 +72,18 @@ void GameWindow::run()
 
         if (!io.WantCaptureMouse)
         {
+            inHandler.cameraHandle(dt);
+            inHandler.scrollHandle();
             //inHandler.mouseHandle(dt, cameraPos.x, cameraPos.y, cameraPos.z,m_width, m_height);
         }
-        inHandler.cameraHandle(dt);
-        inHandler.scrollHandle();
 
-        Draw();
-       
+        dungeon.Render();
+        
         gui.Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         /* Swap front and back buffers */
         glfwSwapBuffers(m_window);
-
     }
 }
 
@@ -117,10 +95,21 @@ void GameWindow::shutdown()
 
 void GameWindow::Draw()
 {
-    inHandler.updateMVP(cubePositions[0]);
+    /*for (int i = 0; i <= 1; i++) {
+        inHandler.updateMVP(cubePositions[i]);
 
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }*/
+}
+
+GameWindow::GameWindow()
+    : m_width(720), m_height(480), m_title("No Title")
+{
+}
+
+GameWindow::GameWindow(int width, int height, const char* title)
+    : m_width(width), m_height(height), m_title(title)
+{
 }
 
 void GameWindow::init()
@@ -152,9 +141,23 @@ void GameWindow::init()
         throw "Bro gets the L Glad wont load!!";
     }
 
-    shader.init("Core/Shaders/vertex.shader", "Core/Shaders/fragment.shader");
-    texture = Texture(shader.getId());
-    texture.CreateTexture("Core/Assets/wall.jpg");
+    std::cout << "GPU: "
+        << glGetString(GL_RENDERER)
+        << '\n';
 
+    std::cout << "Vendor: "
+        << glGetString(GL_VENDOR)
+        << '\n';
+
+    std::cout << "OpenGL: "
+        << glGetString(GL_VERSION)
+        << '\n';
+
+    //shader.init("Core/Shaders/vertex.shader", "Core/Shaders/fragment.shader");
+
+    m_Shaders.push_back(Shader("Core/Shaders/objVer.shader", "Core/Shaders/objFrag.shader"));
+    m_Shaders.push_back(Shader("Core/Shaders/lightVer.shader", "Core/Shaders/lightFrag.shader"));
+    //texture = Texture(shader.getId());
+    //texture.CreateTexture("Core/Assets/wall.jpg");
 }
 
