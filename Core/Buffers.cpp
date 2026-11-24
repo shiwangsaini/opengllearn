@@ -1,97 +1,101 @@
 #include "Buffers.h"
 
+#include <iostream>
 
-VertexBuffer::VertexBuffer() 
-    : VBO(0), VAO(0), lightVAO(0)
-{
-}
+namespace Buffers {
+    Vertex::Vertex()
+        : VBO(0), VAO(0)
+    {
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        verticies.clear();
+    }
 
-VertexBuffer::~VertexBuffer()
-{
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-}
+    Vertex::~Vertex()
+    {
+        glBindVertexArray(0);
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
+    }
 
+    void Vertex::AddVertex(const Layout& layout)
+    {
+        Bind();
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        const std::vector<Elements>& elements = layout.GetElements();
+        unsigned int offset = 0;
+        for (int i = 0; i < elements.size(); i++) {
+            glEnableVertexAttribArray(i);
+            glVertexAttribPointer(i, elements[i].count, elements[i].type, elements[i].normalized, layout.GetStride(), (const void*)offset);
+            offset += elements[i].count * Elements::GetTypeSize(elements[i].type);
+        }
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
+    void Vertex::SetInstanceVAO(const std::vector<glm::vec3>& InstanceData)
+    {
+        Bind();
+        glGenBuffers(1, &instanceVBO);
+        glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
+        glBufferData(GL_ARRAY_BUFFER, InstanceData.size() * sizeof(glm::vec3), InstanceData.data(), GL_STATIC_DRAW);
 
-void VertexBuffer::SetInstanceVAO(std::vector<glm::vec3>& InstanceData)
-{
-    glGenBuffers(1, &instanceVBO);
-    glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, InstanceData.size() * sizeof(glm::vec3), InstanceData.data(), GL_STATIC_DRAW);
- 
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
-    glEnableVertexAttribArray(2);
-    glVertexAttribDivisor(2, 1);
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+        glVertexAttribDivisor(3, 1);
+        UnBind();
+    }
 
-    glBindVertexArray(0);
-}
+    void Vertex::drawInstancedV(const std::vector<glm::vec3>& InstanceData)
+    {
+        Bind();
+        glDrawArraysInstanced(GL_TRIANGLES, 0, 36, static_cast<GLsizei>(InstanceData.size()));
+        UnBind();
+    }
+    void Vertex::drawInstancedV(const std::vector<glm::vec3>& InstanceData, const uint16_t& size)
+    {
+        Bind();
+        glDrawElementsInstanced(GL_TRIANGLES, size, GL_UNSIGNED_INT, nullptr, static_cast<GLsizei>(InstanceData.size()));
+        UnBind();
+    }
 
-void VertexBuffer::drawInstancedV(std::vector<glm::vec3>& InstanceData)
-{
-    glBindVertexArray(VAO);
+    void Vertex::Bind()
+    {
+        glBindVertexArray(VAO);
+    }
 
-    glDrawArraysInstanced(GL_TRIANGLES, 0, 36, static_cast<GLsizei>(InstanceData.size()));
+    void Vertex::UnBind()
+    {
+        glBindVertexArray(0);
+    }
 
-    glBindVertexArray(0);
-}
+    // vertexdata: 1.vertex points, 2.normals and 3.texture cordinate or Model data. usage: gl Drawtype
+    void Vertex::AddDrawData(const std::vector<float>& vertexData, const int& usage){ 
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertexData.size() * sizeof(float), vertexData.data(), usage);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
-void VertexBuffer::BindObj()
-{
-    // first, configure the cube's VAO (and VBO)
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
+    Index::Index()
+        : IBO(0)
+    {
+        glGenBuffers(1, &IBO);
+        indices.clear();
+    }
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    Index::~Index()
+    {
+        glDeleteBuffers(1, &IBO);
+    }
 
-    glBindVertexArray(VAO);
+    void Index::AddIndex(const std::vector<unsigned int>& index)
+    {
+        indices.insert(indices.end(), index.begin(), index.end());
+    }
 
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    // Normals
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    // Colors
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    // TexCordinate
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)(9 * sizeof(float)));
-    glEnableVertexAttribArray(3);
-}
-
-void VertexBuffer::BindLight()
-{
-    // second, configure the light's VAO (VBO stays the same; the vertices are the same for the light object which is also a 3D cube)
-    glGenVertexArrays(1, &lightVAO);
-    glBindVertexArray(lightVAO);
-    // we only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need (it's already bound, but we do it again for educational purposes)
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 11 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-}
-
-IndexBuffer::IndexBuffer()
-    : IBO(0), indices( 
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    )
-{
-}
-
-IndexBuffer::~IndexBuffer()
-{
-    glDeleteBuffers(1, &IBO);
-}
-
-void IndexBuffer::bind()
-{
-    glGenBuffers(1, &IBO);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    void Index::bind()
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+    }
 }

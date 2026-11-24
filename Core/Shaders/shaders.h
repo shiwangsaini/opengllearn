@@ -6,9 +6,16 @@
 
 #include "Buffers.h"
 
-enum ShaderType{
+enum ShaderType : uint16_t{
     OBJECT = 0,
-    LIGHT = 1
+    LIGHT = 1,
+    ENEMY = 2
+};
+
+struct ShaderIdUniformCache {
+    ShaderIdUniformCache(const unsigned int& id) :RenderID(id) {};
+    unsigned int RenderID;
+    std::unordered_map<const char*, GLint> UniformLocationCache;
 };
 
 /*
@@ -19,36 +26,31 @@ class Shader
 {
 public:
     Shader() = default;
-    Shader(const std::string& vertexShader, const std::string& fragmentShader);
     ~Shader();
 
-    Shader(const Shader&) = delete; //no copy
-    Shader& operator=(const Shader&) = delete;
+    Shader(const Shader&)               = delete;
+    Shader& operator=(const Shader&)    = delete;
+    Shader(Shader&& other)              noexcept;
+    Shader& operator=(Shader&& other)   noexcept;
 
-    Shader(Shader&& other) noexcept; // Move 
-    Shader& operator=(Shader&& other) noexcept;
+    void const use          (const uint16_t& index = 0) const;
+    bool const AddShader    (const std::string& vertexShader, const std::string& fragmentShader);
 
-    void use();
-    void bind(bool t);
+    const unsigned int& getId   (const uint16_t& index = 0) { return mRenderIdCache[index].RenderID; }
 
-    unsigned int* getId() { return &m_RenderID; }
+    void setMVP(glm::mat4 M, glm::mat4 V, glm::mat4 P, const uint16_t& shaderType);
 
-    void setMVP(glm::mat4 M, glm::mat4 V, glm::mat4 P);
+    void setUniform1Int     (const char* varName, const GLint& v0 = 0, const uint16_t& index = 0);
+    void setUniformMat4f    (const char* varName, const glm::mat4& value, const uint16_t& index = 0);
+    void setUniformVec3     (const char* varName, const glm::vec3 value, const uint16_t& index = 0);
+    void setUniform1Float   (const char* varName, const float value, const uint16_t& index = 0);
 
-    void setUniform1Int(const char* varName, const GLint& v0 = 0);
-    void setUniformMat4f(const char* varName, const glm::mat4& value);
-    void setUniformVec3(const char* varName, const glm::vec3 value);
-    void setUniform1Float(const char* varName, const float value);
-
-    const int getUniformLoc(const char* uName);
+    const int getUniformLoc (const char* uName, const uint16_t& index = 0);
 
 private:
-	unsigned int m_RenderID;
-
-    std::unordered_map<const char*, int> m_UniformLocationCache;
+    std::vector<ShaderIdUniformCache> mRenderIdCache;
 
     unsigned int CompileShader(unsigned int type, const std::string& source);
     unsigned int CreateShader(const std::string& vertexShader, const std::string& fragmentShader);
-
 };
 

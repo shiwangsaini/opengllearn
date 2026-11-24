@@ -1,12 +1,13 @@
 #include "InputHandler.h"
 #include <iostream>
 
-InputHandler::InputHandler(GLFWwindow* window, std::vector<Shader>& shaders)
+InputHandler::InputHandler(GLFWwindow* window, Shader& shaders)
 	: m_window(window), mShaders(shaders)
 {
 	Input::initInput(m_window);
 	mCamera = Camera(m_window);
 }
+
 
 void InputHandler::keyHandle(float& dt)
 {
@@ -26,18 +27,10 @@ void InputHandler::keyHandle(float& dt)
 	}
 	if (Input::isKeyPressed(GLFW_KEY_ESCAPE)) {
 		if (cursorEnabled)
-		{
-			glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-			cursorEnabled = false;
-		}
-		else
-		{
-			glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-			cursorEnabled = true;
-		}
+			CursorOn(false);
+		else 
+			CursorOn(true);
 
-		escWasPressed = false;
-		return;
 	}
 	
 }
@@ -95,43 +88,72 @@ void InputHandler::scrollHandle()
 	mCamera.setFov(Input::m_fov);
 }
 
-void InputHandler::updateMVP(glm::vec3& Position ,const ShaderType& Type)
+void InputHandler::updateMVP(const glm::vec3& Position ,const ShaderType& Type)
 {
-	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, Position);
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), Position);
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	// if Simple obj is to update for MVP
-	mShaders[Type].setUniformMat4f("uModel", model);
-	mCamera.update(mShaders[Type]);
+	mShaders.setUniformMat4f("uModel", model, Type);
+	mCamera.update(mShaders, Type);
 }
 
-void InputHandler::updateMVPScale(glm::vec3& Position, glm::vec3& scale, Shader& shader)
+void InputHandler::updateMVP(const glm::vec3& Position, const glm::vec3& scale, const ShaderType& type)
 {
 	glm::mat4 model = glm::mat4(1.0f);
 	model = glm::translate(model, Position) * glm::scale(model, scale);
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
-	shader.setUniformMat4f("uModel", model);
-	mCamera.update(shader);
+	mShaders.setUniformMat4f("uModel", model, type);
+	mCamera.update(mShaders, type);
 }
 
-void InputHandler::updateMVPRotation(glm::vec3& Position, float& radian,float& rotateX, float& rotateY, Shader& shader)
+void InputHandler::updateMVP(const glm::vec3& Position, const glm::vec3& scale, const float& radian ,const glm::vec3& rotation, const ShaderType& type)
 {
 	glm::mat4 model = glm::mat4(1.0f);
-	model = glm::translate(model, Position);
-	model = glm::rotate(model, glm::radians(radian), glm::vec3(rotateX, rotateY,0.0f));
+	model = glm::translate(model, Position) * glm::scale(model, scale);
+	model = glm::rotate(model, glm::radians(radian), rotation);
 
-	shader.setUniformMat4f("uModel", model);
-	mCamera.update(shader);
+	mShaders.setUniformMat4f("uModel", model, type);
+	mCamera.update(mShaders, type);
 }
 
 void InputHandler::useShader(const ShaderType& Type)
 {
-	mShaders[static_cast<size_t>( Type)].use();
+	mShaders.use(Type);
 }
 
 void InputHandler::SetCameraPos(glm::vec3& camPos)
 {
 	mCamera.mPos = camPos;
+}
+
+void InputHandler::CursorOn(const bool& on)
+{
+	if(on)
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	else
+		glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	cursorEnabled = on;
+}
+
+void KeyBind::BindKeyPress(int key, std::function<void()> func)
+{
+	if (Input::isKeyPressed(key)) {
+		func();
+	}
+}
+
+void KeyBind::BindKeyOnHold(int key, std::function<void()> func)
+{
+	if (Input::isKeyHeld(key)) {
+		func();
+	}
+}
+
+void KeyBind::BindKeyRelease(int key, std::function<void()> func)
+{
+	if (Input::isKeyReleased(key)) {
+		func();
+	}
 }

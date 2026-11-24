@@ -24,7 +24,6 @@ private:
 	const char* m_title = nullptr;
 	GLFWwindow* m_window = nullptr;
 
-	std::vector<Shader> m_Shaders;
-	Texture texture;
+	Shader m_Shaders;
 };
 

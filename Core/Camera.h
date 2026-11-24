@@ -7,11 +7,11 @@
 class Camera
 {
 public:
-	Camera() {}
+	Camera() = default;
 	Camera(GLFWwindow* window);
 	~Camera() {};
 
-	void update(Shader& shader);
+	void update(Shader& shader, const uint16_t& type);
 	void setFov(float& fov);
 
 	glm::vec3 mPos	{0.0f};
@@ -19,12 +19,12 @@ public:
 	glm::vec3 mUp	{0.0f};
 
 private:
-	glm::mat4 mProjection;
-	glm::mat4 mView;
+	glm::mat4 mProjection{0};
+	glm::mat4 mView{0};
 
 	GLFWwindow* mWindow;
-	int mWidth;
-	int mHeight;
+	int mWidth = 0;
+	int mHeight = 0;
 	float mFov = 45.0f;
 };
 

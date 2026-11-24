@@ -3,22 +3,26 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-Texture::Texture()
+TextureManager::TextureManager()
 {
     stbi_set_flip_vertically_on_load(true);
 }
 
-Texture::~Texture()
+TextureManager::~TextureManager()
 {
-    if (!textureID.empty())
-        glDeleteTextures( static_cast<GLsizei>(textureID.size()), textureID.data() );
+    unbind();
+    if (!mTextures.empty())
+        for(auto& t : mTextures)
+            glDeleteTextures(1, &t.ID);
 }
 
-void Texture::CreateTexture(const char* texturePath)
+GLint TextureManager::CreateTexture(const char* texturePath, const char* directory)
 {
-    textureID.push_back(0);
-
-    GLuint& id = textureID.back();
+    std::string Path = "Core/Assets/" + std::string(texturePath);
+    Texture texture;
+    GLuint& id = texture.ID;
+    texture.type = texturePath;
+    texture.path = directory;
 
     glGenTextures(1, &id);
     glBindTexture(GL_TEXTURE_2D, id);
@@ -31,7 +35,7 @@ void Texture::CreateTexture(const char* texturePath)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width, height, nrChannels;
-    unsigned char* data = stbi_load(texturePath, &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load(Path.c_str(), &width, &height, &nrChannels, 0);
     if (data)
     {
         GLenum format;
@@ -56,9 +60,9 @@ void Texture::CreateTexture(const char* texturePath)
 
         default:
             std::cout << "Unsupported channel count: " << nrChannels << '\n';
-
+            throw;
             stbi_image_free(data);
-            return;
+            return -1;
         }
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, format, GL_UNSIGNED_BYTE, data);
@@ -69,28 +73,30 @@ void Texture::CreateTexture(const char* texturePath)
         std::cout << "\nFailed to load texture" << std::endl;
     }
     stbi_image_free(data);
+
+    mTextures.push_back(texture);
+    return id;
 }
 
-void Texture::bind()
+void TextureManager::bind()
 {
-    for (size_t i = 0; i < textureID.size(); ++i)
+    for (size_t i = 0; i < mTextures.size(); ++i)
     {
         glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(i));
-        glBindTexture(GL_TEXTURE_2D, textureID[i]);
+        glBindTexture(GL_TEXTURE_2D, mTextures[i].ID);
     }
 }
 
-void Texture::unbind()
+void TextureManager::unbind()
 {
-    for (size_t i = 0; i < textureID.size(); ++i)
+    for (size_t i = 0; i < mTextures.size(); ++i)
     {
         glActiveTexture(GL_TEXTURE0 + static_cast<GLenum>(i));
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
 
-const GLint Texture::GetTextureID(const size_t& index)
+const GLint TextureManager::GetTextureID(const size_t& index)
 {
-    return textureID[index];
-
+    return mTextures[index].ID;
 }

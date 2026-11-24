@@ -1,6 +1,7 @@
 #include "Core/GameWindow.h"
 //#include <iostream>
 
+
 int main(void)
 {
     GameWindow game(1280, 720, "Game");

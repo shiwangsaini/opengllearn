@@ -1,0 +1,9 @@
+Set the pallet as the model's 
+material texture.
+
+Some models come without material,
+others have two materials assigned because
+they have a metal effect, but they should 
+work with one material if necessary.
+
+The models texture only work with the pallet...

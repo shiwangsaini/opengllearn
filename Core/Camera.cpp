@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera(GLFWwindow* window)
-	: mWindow(window), mPos(glm::vec3(0.0f, 0.0f, 3.0f)), mFront(glm::vec3(1.0f, 1.0f, 0.0f)), mUp(glm::vec3(0.0f, 0.0f, 1.0f))
+	: mWindow(window), mPos(glm::vec3(0.0f, 2.0f, 3.0f)), mFront(glm::vec3(0.0f, 1.0f, -1.0f)), mUp(glm::vec3(0.0f, 0.0f, 1.0f))
 {
     glfwGetWindowSize(mWindow, &mWidth, &mHeight);
 
@@ -9,12 +9,12 @@ Camera::Camera(GLFWwindow* window)
     mView = glm::lookAt(mPos, mPos + mFront, mUp);
 }
 
-void Camera::update(Shader& shader)
+void Camera::update(Shader& shader, const uint16_t& type)
 {
     mProjection = glm::perspective(glm::radians(mFov), (float)mWidth / (float)mHeight, 0.1f, 100.0f);
     mView = glm::lookAt(mPos, mPos + mFront, mUp);
-    shader.setUniformMat4f("uProj", mProjection);
-    shader.setUniformMat4f("uView", mView);
+    shader.setUniformMat4f("uProj", mProjection, type);
+    shader.setUniformMat4f("uView", mView, type);
 }
 
 void Camera::setFov(float& fov)

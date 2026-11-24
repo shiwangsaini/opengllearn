@@ -3,88 +3,94 @@
 #include <malloc.h>
 #include <fstream>
 
-
-Shader::Shader(const std::string& vertexShader, const std::string& fragmentShader)
-{
-    m_RenderID = CreateShader(vertexShader, fragmentShader);
-}
-
 Shader::~Shader()
 {
     glUseProgram(0);
-    glDeleteProgram(m_RenderID);
+    for(auto& id : mRenderIdCache)
+        glDeleteProgram(id.RenderID);
+    mRenderIdCache.clear();
 }
 
 Shader::Shader(Shader&& other) noexcept
-    : m_RenderID(other.m_RenderID)
+    : mRenderIdCache(other.mRenderIdCache)
 {
-    other.m_RenderID = 0;
+    for(auto& oid: other.mRenderIdCache)
+        oid.RenderID = 0;
+    other.mRenderIdCache.clear();
 }
 
 Shader& Shader::operator=(Shader&& other) noexcept
 {
     if (this != &other)
     {
-        if (m_RenderID != 0)
-            glDeleteProgram(m_RenderID);
-
-        m_RenderID = other.m_RenderID;
-        other.m_RenderID = 0;
+        for (auto& id : mRenderIdCache) {
+            if (id.RenderID!= 0)
+                glDeleteProgram(id.RenderID);
+        }
+        mRenderIdCache = other.mRenderIdCache;
+        for(auto& oid: other.mRenderIdCache)
+            oid.RenderID = 0;
     }
 
     return *this;
 }
 
-void Shader::use()
+void const Shader::use(const uint16_t& index) const
 {
-    glUseProgram(m_RenderID);
+    if (index >= mRenderIdCache.size())
+        throw "LOL Not have the shader of this Index";
+    glUseProgram(mRenderIdCache[index].RenderID);
 }
 
-void Shader::bind(bool t)
+bool const Shader::AddShader(const std::string& vertexShader, const std::string& fragmentShader)
 {
-    this->use();
+    unsigned int sh = CreateShader(vertexShader, fragmentShader);
+    if (sh < 0) return -1;
+    mRenderIdCache.push_back(sh);
+    return true;
 }
 
-void Shader::setMVP(glm::mat4 M, glm::mat4 V, glm::mat4 P)
+void Shader::setMVP(glm::mat4 M, glm::mat4 V, glm::mat4 P, const uint16_t& shaderType)
 {
-    setUniformMat4f("uModel", M);
-    setUniformMat4f("uView", V);
-    setUniformMat4f("uProj", P);
+    setUniformMat4f("uModel", M, shaderType);
+    setUniformMat4f("uView" , V, shaderType);
+    setUniformMat4f("uProj" , P, shaderType);
 }
 
-void Shader::setUniform1Int(const char* varName, const GLint& v0)
+void Shader::setUniform1Int(const char* varName, const GLint& v0, const uint16_t& index)
 {
-    glUniform1i(getUniformLoc(varName), v0);
+    glUniform1i(getUniformLoc(varName, index), v0);
 }
 
-void Shader::setUniformMat4f(const char* varName, const glm::mat4& value)
+void Shader::setUniformMat4f(const char* varName, const glm::mat4& value, const uint16_t& index)
 {
-    glUniformMatrix4fv(getUniformLoc(varName), 1, GL_FALSE, &(value[0][0]));
+    glUniformMatrix4fv(getUniformLoc(varName, index), 1, GL_FALSE, &(value[0][0]));
 }
 
-void Shader::setUniformVec3(const char* varName, const glm::vec3 value)
+void Shader::setUniformVec3(const char* varName, const glm::vec3 value, const uint16_t& index)
 {
-    glUniform3f(getUniformLoc(varName), value.x, value.y, value.z);
+    glUniform3f(getUniformLoc(varName, index), value.x, value.y, value.z);
 
 }
 
-void Shader::setUniform1Float(const char* varName, const float value)
+void Shader::setUniform1Float(const char* varName, const float value, const uint16_t& index)
 {
-    glUniform1f(getUniformLoc(varName), value);
+    glUniform1f(getUniformLoc(varName, index), value);
 }
 
 
-const int Shader::getUniformLoc(const char* uName)
+const int Shader::getUniformLoc(const char* uName, const uint16_t& index)
 {
-    if (m_UniformLocationCache.find(uName) == m_UniformLocationCache.end())
-        return m_UniformLocationCache[uName];
-
-    int loc = glGetUniformLocation(m_RenderID, uName);
-    if (loc == -1) {
+    // Return cached location if it exists.
+    if (mRenderIdCache[index].UniformLocationCache.find(uName) != mRenderIdCache[index].UniformLocationCache.end())
+        return mRenderIdCache[index].UniformLocationCache[uName];
+    // Otherwise, query OpenGL.
+    GLint loc = glGetUniformLocation(mRenderIdCache[index].RenderID, uName);
+    if (loc == -1)
+    {
         std::cerr << "Lol Uniform location Not found : " << uName << " <- This\n";
     }
-    else m_UniformLocationCache[uName] = loc;
-
+    mRenderIdCache[index].UniformLocationCache[uName] = loc;
     return loc;
 }
 

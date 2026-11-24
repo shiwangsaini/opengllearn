@@ -81,13 +81,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\Assimp\include;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\Assimp\lib;$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc145-mt.lib;opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -99,13 +99,13 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\Assimp\include;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\Assimp\lib;$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc145-mt.lib;opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -115,13 +115,13 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\Assimp\include;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\Assimp\lib;$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc145-mt.lib;opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -133,16 +133,17 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\GLAD\include;$(SolutionDir)Dependencies\glm;$(SollutionDir)Dependencies\imgui;$(SolutionDir)Game;$(SolutionDir)Core;$(SolutionDir)Dependencies\Assimp\include;$(SolutionDir)Dependencies\GLFW\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependencies\Assimp\lib;$(SolutionDir)Dependencies\GLFW\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>assimp-vc145-mt.lib;opengl32.lib;glfw3.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Core\CollisionSystem\Collision.cpp" />
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Input.cpp" />
     <ClCompile Include="Core\Shaders\shaders.cpp" />
@@ -158,13 +159,18 @@
     <ClCompile Include="Dependencies\imgui\imgui_tables.cpp" />
     <ClCompile Include="Dependencies\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Core\Gui.cpp" />
+    <ClCompile Include="Game\BPS\Enemy.cpp" />
     <ClCompile Include="Game\BPS\Dungeon.cpp" />
+    <ClCompile Include="Game\BPS\Room.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Core\Texture.cpp" />
+    <ClCompile Include="Core\Model\ModelLoad.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Core\CollisionSystem\Collision.h" />
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Input.h" />
+    <ClInclude Include="Core\Model\struct.h" />
     <ClInclude Include="Core\Shaders\shaders.h" />
     <ClInclude Include="Dependencies\GLAD\include\glad\gl.h" />
     <ClInclude Include="Dependencies\GLAD\include\KHR\khrplatform.h" />
@@ -184,19 +190,23 @@
     <ClInclude Include="Dependencies\imgui\imstb_textedit.h" />
     <ClInclude Include="Dependencies\imgui\imstb_truetype.h" />
     <ClInclude Include="Core\Gui.h" />
+    <ClInclude Include="Game\BPS\Enemy.h" />
     <ClInclude Include="Game\BPS\Dungeon.h" />
+    <ClInclude Include="Game\BPS\Room.h" />
+    <ClInclude Include="Core\Model\ModelLoad.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\GLFW\lib\glfw3.lib" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Core\Shaders\fragment.shader" />
+    <None Include="Core\Shaders\EnemyFrag.shader" />
     <None Include="Core\Shaders\lightFrag.shader" />
     <None Include="Core\Shaders\lightVer.shader" />
     <None Include="Core\Shaders\objFrag.shader" />
     <None Include="Core\Shaders\objVer.shader" />
-    <None Include="Core\Shaders\objVert2.shader" />
-    <None Include="Core\Shaders\vertex.shader" />
+    <None Include="Core\Shaders\objFrag1.shader" />
+    <None Include="Core\Shaders\EnemyVer.shader" />
+    <None Include="Core\Shaders\objVer1.shader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

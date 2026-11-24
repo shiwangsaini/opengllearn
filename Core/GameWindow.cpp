@@ -27,6 +27,64 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // Run main game loop
 void GameWindow::run()
 {
+    std::vector<float> cude{
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   0, 0,   //0
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   1, 0,   //1
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   1, 1,   //2
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,   0, 1,   //3
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    0, 0,   //4
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    1, 0,   //5
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    1, 1,   //6
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,    0, 1,   //7
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,   0, 0,   //8
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,   1, 0,   //9
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,   1, 1,   //10
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,   0, 1,   //11
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,   0, 0,   //12
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,   1, 0,   //13
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,   1, 1,   //14
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,   0, 1,   //15 
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,   0, 0,   //16
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,   1, 0,   //17
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,   1, 1,   //18
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,   0, 1,   //19
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,   0, 0,   //20
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,   1, 0,   //21
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,   1, 1,   //22
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,   0, 1,   //23
+    };
+
+    std::vector<unsigned> indicies{
+        // front
+        0, 1, 2,
+        2, 3, 0,
+
+        // back
+        4, 5, 6,
+        6, 7, 4,
+
+        // left
+        8, 9, 10,
+        10, 11, 8,
+
+        // right
+        12, 13, 14,
+        14, 15, 12,
+
+        // bottom
+        16, 17, 18,
+        18, 19, 16,
+
+        // top
+        20, 21, 22,
+        22, 23, 20
+    };
+
     glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     Gui gui(m_window);
@@ -38,10 +96,33 @@ void GameWindow::run()
     float prevT = 0.0f;
     ImGuiIO& io = ImGui::GetIO();
 
+    //Buffers::Vertex VB;
+    //VB.AddDrawData(cude, GL_STATIC_DRAW);
+    //TextureManager texture;
+    //texture.CreateTexture("Core/Assets/container2.png", "container");
+    //texture.CreateTexture("Core/Assets/container2_specular.png", "constainer_specular");
+    //m_Shaders.use(ShaderType::OBJECT);
+    //m_Shaders.setUniform1Int("material.diffuse", 0, ShaderType::OBJECT);
+    //m_Shaders.setUniform1Int("material.specular", 1, ShaderType::OBJECT);
+    //Buffers::Layout layout;
+    //layout.Push<float>(3);
+    //layout.Push<float>(3);
+    //layout.Push<float>(2);
+    //VB.AddVertex(layout);
+
+    //Buffers::Index IB;
+    //IB.AddIndex(indicies);
+    //VB.Bind();
+    //IB.bind();
+    //texture.bind();
+
     /* Loop until the user closes the window */
+    Dungeon dungeon{inHandler};
+    bool playMode = false;
+    float dt, current;
 
-    Dungeon dungeon{&inHandler};
-
+    //Model::Manager backpack;
+    //backpack.LoadModel("Core/Assets/untitled.obj");
 
     while (!glfwWindowShouldClose(m_window))
     {
@@ -51,33 +132,33 @@ void GameWindow::run()
         glfwPollEvents();
         gui.CreateFrame();
 
-        //texture.bind();
-        /* Poll for and process events */
-        /* Render here */
-        ImGui::Begin("Hello, world!");
-        //ImGui::SliderFloat3("Img 1", &transA.x, -10.0f, 10.0f);
-        //ImGui::SliderFloat3("light pos:", &cubePositions.x, -10.0f, 10.0f);
+        /*ImGui::Begin("Hey!!");
+        ImGui::Checkbox(" - Play Mode - ", &playMode);
+        ImGui::SliderFloat("Material Shine: ", &materialShine, 0.0f, 256.f);
+        ImGui::SliderFloat3("material Ambi: ", &materialAmbi.x, 0.0f, 1.f);
+        ImGui::SliderFloat3("light Ambi: ", &lightAmbi.x, 0.0f, 1.f);
+        ImGui::SliderFloat3("light diff: ", &lightDiff.x, 0.0f, 1.f);
+        ImGui::SliderFloat3("light spec: ", &lightSpec.x, 0.0f, 1.f);
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();
+        ImGui::End();*/
 
-
-        float current = (float)glfwGetTime();
-        float dt = (current - prevT);
+        current = (float)glfwGetTime();
+        dt = (current - prevT);
         prevT = current;
 
-        if (!io.WantCaptureKeyboard)
+        if (!io.WantCaptureKeyboard || !io.WantCaptureMouse)
         {
-            inHandler.keyHandle(dt);
-        }
-
-        if (!io.WantCaptureMouse)
-        {
+            if (!playMode) {
+                inHandler.keyHandle(dt);
+                inHandler.scrollHandle();
+            }
+            else {
+                dungeon.keyHandle(dt);
+            }
             inHandler.cameraHandle(dt);
-            inHandler.scrollHandle();
-            //inHandler.mouseHandle(dt, cameraPos.x, cameraPos.y, cameraPos.z,m_width, m_height);
         }
 
-        dungeon.Render();
+        dungeon.Render(dt);
         
         gui.Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -89,17 +170,7 @@ void GameWindow::run()
 
 void GameWindow::shutdown()
 {
-    texture.unbind();
     glfwTerminate();
-}
-
-void GameWindow::Draw()
-{
-    /*for (int i = 0; i <= 1; i++) {
-        inHandler.updateMVP(cubePositions[i]);
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }*/
 }
 
 GameWindow::GameWindow()
@@ -133,6 +204,7 @@ void GameWindow::init()
         throw "Bro gets the L window is useless just like you!!";
     }
 
+    
     /* Make the window's context current */
     glfwMakeContextCurrent(m_window);
 
@@ -153,11 +225,10 @@ void GameWindow::init()
         << glGetString(GL_VERSION)
         << '\n';
 
-    //shader.init("Core/Shaders/vertex.shader", "Core/Shaders/fragment.shader");
 
-    m_Shaders.push_back(Shader("Core/Shaders/objVer.shader", "Core/Shaders/objFrag.shader"));
-    m_Shaders.push_back(Shader("Core/Shaders/lightVer.shader", "Core/Shaders/lightFrag.shader"));
-    //texture = Texture(shader.getId());
-    //texture.CreateTexture("Core/Assets/wall.jpg");
+    m_Shaders.AddShader("Core/Shaders/objVer1.shader", "Core/Shaders/objFrag1.shader");
+    m_Shaders.AddShader("Core/Shaders/lightVer.shader", "Core/Shaders/lightFrag.shader");
+    m_Shaders.AddShader("Core/Shaders/EnemyVer.shader", "Core/Shaders/EnemyFrag.shader");
+    //m_Shaders.push_back(Shader("Core/Shaders/EnemyVer.shader", "Core/Shaders/EnemyFrag.shader"));
 }
 

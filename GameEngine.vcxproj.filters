@@ -69,6 +69,18 @@
     <ClCompile Include="Game\BPS\Dungeon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Game\BPS\Enemy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Game\BPS\Room.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\CollisionSystem\Collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Core\Model\ModelLoad.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h">
@@ -137,17 +149,33 @@
     <ClInclude Include="Game\BPS\Dungeon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Game\BPS\Enemy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Game\BPS\Room.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\CollisionSystem\Collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Model\ModelLoad.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Model\struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Dependencies\GLFW\lib\glfw3.lib" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Core\Shaders\vertex.shader" />
-    <None Include="Core\Shaders\fragment.shader" />
+    <None Include="Core\Shaders\EnemyVer.shader" />
+    <None Include="Core\Shaders\EnemyFrag.shader" />
     <None Include="Core\Shaders\lightVer.shader" />
     <None Include="Core\Shaders\lightFrag.shader" />
     <None Include="Core\Shaders\objVer.shader" />
     <None Include="Core\Shaders\objFrag.shader" />
-    <None Include="Core\Shaders\objVert2.shader" />
+    <None Include="Core\Shaders\objFrag1.shader" />
+    <None Include="Core\Shaders\objVer1.shader" />
   </ItemGroup>
 </Project>

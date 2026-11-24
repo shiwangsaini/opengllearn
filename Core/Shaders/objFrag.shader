@@ -3,43 +3,51 @@
 
 out vec4 FragColor;
   
-uniform vec3 objectColor;
-uniform vec3 lightColor;
-uniform vec3 uLightPos;
+struct Material {
+    sampler2D diffuse;
+    sampler2D specular;
+    vec3 ambient;
+    float shininess;
+};
+
+struct Light{
+    vec3 position;
+    vec3 ambient;
+    vec3 diffusion;
+    vec3 specular;
+};
+
+uniform Material material;
+uniform Light light;
+
 uniform vec3 uViewPos;
 
 in vec3 Normal;
 in vec3 FragPos;
-in vec3 Color;
 in vec2 TexCoord;
 
-uniform sampler2D uTexture;
 
 void main()
 {
     // Ambient
-    float ambientStrength = 0.2;
-    vec3 ambient = ambientStrength * lightColor;
+    vec3 ambient = light.ambient * material.ambient *vec3(texture(material.diffuse, TexCoord));
 
     vec3 Norm = normalize(Normal);
-    vec3 lightDir = normalize(uLightPos - FragPos);
+    vec3 lightDir = normalize(light.position - FragPos);
 
     // Diffusion
     float Diff = max(dot(Norm, lightDir), 0.0);
-    vec3 Diffusion = (Diff) * lightColor;
+    vec3 Diffusion = Diff * light.diffusion * vec3(texture(material.diffuse, TexCoord));
 
     // Speculation Diriction
-    float speculStrength = 0.5;
     vec3 viewDir = normalize(uViewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir, Norm);
 
     // Specular
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0),36.0); 
-    vec3 specular = speculStrength * spec * lightColor;
-
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess); 
+    vec3 specular = spec * light.specular * vec3(texture(material.specular, TexCoord));
     // Final
     vec3 lighting = (specular + ambient + Diffusion);
-    vec3 TextureColor = texture(uTexture, TexCoord).rgb * objectColor;
-
-    FragColor = vec4(lighting * TextureColor, 1.0);
+    FragColor = vec4(lighting, 1.0);
+    
 }

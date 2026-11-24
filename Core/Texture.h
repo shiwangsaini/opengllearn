@@ -2,21 +2,27 @@
 
 #include "Shaders/shaders.h"
 
-class Texture
+struct Texture {
+	Texture() : ID(-1), type("NULL") {};
+	unsigned int ID;	// id no
+	std::string type;	// name
+	std::string path;	// name
+};
+
+class TextureManager
 {
 public:
-	Texture();
-	~Texture();
+	TextureManager();
+	~TextureManager();
 
-	void CreateTexture(const char* texturePath);
+	GLint CreateTexture(const char* texturePath, const char* directory);
 	void bind();
 	void unbind();
 
 	const GLint GetTextureID(const size_t& index);
 
 private:
-	std::vector<unsigned int> textureID;
+	std::vector<Texture> mTextures;
 
-protected:
 };
 
