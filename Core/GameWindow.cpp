@@ -138,10 +138,8 @@ void GameWindow::run()
 
         if (!io.WantCaptureKeyboard || !io.WantCaptureMouse)
         {
-            if (!playMode) {
-                dungeon.keyHandle(dt);
+            if (!dungeon.GetPlayMode()) {
                 inHandler.keyHandle(dt);
-
                 inHandler.scrollHandle();
             }
             else {

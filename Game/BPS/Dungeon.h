@@ -56,6 +56,7 @@ private:
 	float m_wallThick = 0.f;
 	std::unique_ptr<Character> mHero;
 	glm::vec2 mHeroDir{ 0.f };
+	bool mHeroRun = false;
 
 	void DivideRooms(Room* room);
 	void FindNeighbour();

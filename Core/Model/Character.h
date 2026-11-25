@@ -17,12 +17,14 @@ public:
 	struct Config {
 		std::string              idleModel;
 		std::vector<std::string> walkModels;     // frames of one full cycle, in order
+		std::vector<std::string> runModels;     // frames of one full cycle, in order
 		float speed        = 3.0f;               // world units / second
 		float cycleLength  = 0.0f;               // distance covered by one full cycle (0 = 80% of height)
 		float radius       = 0.0f;               // collision radius (0 = from model size)
 		float gravity      = 20.0f;
 		float jumpSpeed    = 7.0f;
 		float facingOffset = 0.0f;               // radians: 0 if model faces +X, -PI/2 if it faces +Y
+		float cyclesPerSecond = 1.2f;    // full walk cycles per second at normal speed
 	};
 
 	explicit Character(const Config& cfg);

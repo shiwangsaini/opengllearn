@@ -23,7 +23,12 @@ Character::Character(const Config& cfg)
 	mCenter = (bb.maxBounds + bb.minBounds) * 0.5f;
 
 	mRadius = cfg.radius      > 0.f ? cfg.radius      : 0.5f * std::max(mSize.x, mSize.y);
-	mCycle  = cfg.cycleLength > 0.f ? cfg.cycleLength : 0.8f * mSize.z;
+	mCycle = cfg.cycleLength > 0.f
+		? cfg.cycleLength
+		: cfg.speed / std::max(cfg.cyclesPerSecond, 0.05f);   // independent of model scale
+
+	std::cout << "Character: size " << mSize.x << " " << mSize.y << " " << mSize.z
+		<< "  cycle " << mCycle << "\n";
 
 	for (int i = 0; i <= mWalkFrames; ++i)
 		mModels.InstanceModel(glm::vec3(0.f), i);
@@ -96,7 +101,8 @@ int Character::CurrentModel() const
 {
 	if (!mMoving || !mGrounded || mWalkFrames == 0) return 0;
 
-	float phase = std::fmod(mDistance, mCycle) / mCycle;           // 0..1 through the cycle
+	const float cycle = std::max(mCycle, 0.001f);
+	float phase = std::fmod(mDistance, cycle) / cycle;           // 0..1 through the cycle
 	int   frame = std::min((int)(phase * mWalkFrames), mWalkFrames - 1);
 	return 1 + frame;
 }

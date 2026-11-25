@@ -46,7 +46,11 @@ Dungeon::Dungeon(InputHandler& manager)
 	
 	Character::Config cfg;
 	cfg.idleModel = "Core/Assets/idel.obj";
-	cfg.walkModels = { "Core/Assets/walk.obj"};
+	for (int i = 1; i <= 30; ++i) {                      // however many frames you exported
+		char path[96];
+		std::snprintf(path, sizeof path, "Core/Assets/Models/CharacterMovement/walk%04d.obj", i);   // adjust to Blender's naming
+		cfg.walkModels.push_back(path);
+	}
 	mHero = std::make_unique<Character>(cfg);
 
 	mHero->Spawn(SpawnPoint());
@@ -519,13 +523,15 @@ void Dungeon::Render(const float& dt)
 	ImGui::SliderFloat3("Enemy pos 2:",   &mEnemy1.mPosition.x, -11.f, 11.f);
 	ImGui::SliderFloat3("Enemy color 1:", &mEnemy.color.x,  0.f, 1.f);
 	ImGui::SliderFloat3("Enemy color 2:", &mEnemy1.color.x, 0.f, 1.f);
+	ImGui::Checkbox("PLAY MODE: ", &PlayMode);
 	ImGui::Text("Application average %.3f ms/frame (%.1f FPS)",
 	            1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 
 	mHero->Update(*this, mHeroDir, dt);
 	mHeroDir = glm::vec2(0.f);
-	UpdateCamera();
+	if(PlayMode)
+		UpdateCamera();
 
 	m_manager.useShader(ShaderType::OBJECT);
 
@@ -563,7 +569,7 @@ void Dungeon::keyHandle(const float& dt)
 	KeyBind::BindKeyOnHold(GLFW_KEY_S, [this, fwd]() { mHeroDir -= fwd(); });
 	KeyBind::BindKeyOnHold(GLFW_KEY_A, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(-f.y, f.x); });
 	KeyBind::BindKeyOnHold(GLFW_KEY_D, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(f.y, -f.x); });
-	KeyBind::BindKeyPress(GLFW_KEY_SPACE, [this]() { mHero->Jump(); });
+	KeyBind::BindKeyPress(GLFW_KEY_SPACE, [this]() {mHero->Jump(); });
 	KeyBind::BindKeyPress(GLFW_KEY_ENTER, [this]() {
 		const glm::vec3& e = mEnemy.mPosition;
 		const glm::vec3& c = m_manager.mCamera.mPos;
@@ -571,9 +577,11 @@ void Dungeon::keyHandle(const float& dt)
 		std::cout << "\nCam Pos   x: " << c.x << ", y:" << c.y << ", z:" << c.z;
 	});
 
-	KeyBind::BindKeyOnHold(GLFW_KEY_UP, [this, fwd]() { mHeroDir += fwd(); });
-	KeyBind::BindKeyOnHold(GLFW_KEY_DOWN, [this, fwd]() { mHeroDir -= fwd(); });
-	KeyBind::BindKeyOnHold(GLFW_KEY_LEFT, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(-f.y, f.x); });
-	KeyBind::BindKeyOnHold(GLFW_KEY_RIGHT, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(f.y, -f.x); });
-	KeyBind::BindKeyPress(GLFW_KEY_SPACE, [this]() { mHero->Jump(); });
+	KeyBind::BindKeyPress(GLFW_KEY_ESCAPE, [this]() { 
+		if (m_manager.isCursorEnable()) {
+			m_manager.CursorOn(false);
+		} else
+			m_manager.CursorOn(true);
+
+		});
 }
