@@ -14,7 +14,8 @@
 #include "Room.h"
 #include "Enemy.h"
 // -------------------------------------------------------------------------
-#include "Model/ModelLoad.h"
+#include "Model/Character.h"
+#include <memory>
 
 // order must match the load order in Dungeon::Dungeon
 enum ModelId : uint16_t {
@@ -37,13 +38,25 @@ class Dungeon
 public:
 	explicit Dungeon(InputHandler& manager);
 
+	//
+	glm::vec3 SpawnPoint() const;
+	float     GroundZ() const { return mExt[M_FLOOR].center.z + mExt[M_FLOOR].size.z * 0.5f; }
+	glm::vec2 MoveEntity(glm::vec2 pos, glm::vec2 delta, float radius) const;
+
 	void Render(const float& dt);
 	void keyHandle(const float& dt);
 
 	bool OnHazard(const glm::vec3& pos) const;
+	const bool GetPlayMode() const { return PlayMode; }
+	void  UpdateCamera();
 
 private:
 	// ---- generation (BSP) ----
+	bool  Blocked(glm::vec2 p, float radius) const;   // replaces Blocked(glm::vec2)
+	float m_wallThick = 0.f;
+	std::unique_ptr<Character> mHero;
+	glm::vec2 mHeroDir{ 0.f };
+
 	void DivideRooms(Room* room);
 	void FindNeighbour();
 	void Shrink();
@@ -62,7 +75,6 @@ private:
 	bool      IsFloorCell(int x, int y) const;
 
 	// ---- collision ----
-	bool Blocked(glm::vec2 p) const;
 	void Move(glm::vec3 delta);
 
 private:
@@ -91,6 +103,10 @@ private:
 	Extent    mExt[M_COUNT];
 	glm::vec3 m_tile{ 1.f };
 	float     m_radius = 0.3f;
+	bool PlayMode = false;
 
 	std::mt19937 mRng{ std::random_device{}() };
+
+	float CameraClearance(const glm::vec3& target, const glm::vec3& dir, float maxDist) const;
+	float m_camDist = 4.0f;
 };

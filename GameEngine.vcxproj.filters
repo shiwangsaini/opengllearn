@@ -81,6 +81,9 @@
     <ClCompile Include="Core\Model\ModelLoad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Core\Model\Character.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Dependencies\GLFW\include\GLFW\glfw3.h">
@@ -162,6 +165,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Core\Model\struct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Core\Model\Character.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

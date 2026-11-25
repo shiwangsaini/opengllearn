@@ -37,7 +37,11 @@ namespace Model {
 
 	class Model {
 	public:
-		Model() { mMeshes.clear(); };
+		Model() { 
+			mMeshes.clear();
+			boundBox.minBounds = glm::vec3(std::numeric_limits<float>::max());
+			boundBox.maxBounds = glm::vec3(-std::numeric_limits<float>::max());
+		};
 		~Model() { mMeshes.clear(); };
 		
 		void SetInstance(const std::vector<glm::vec3>& InstancePos);
@@ -59,6 +63,9 @@ namespace Model {
 	public:
 		Manager() {};
 		~Manager() {};
+
+		// Manager: lets Character detect failed loads
+		size_t ModelCount() const { return mModels.size(); }
 
 		void LoadModel(const std::string& path);
 		void Draw(Shader& shader, const uint16_t& type) const;

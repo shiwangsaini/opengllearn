@@ -36,12 +36,20 @@ Dungeon::Dungeon(InputHandler& manager)
 		mExt[i].center = (bb.maxBounds + bb.minBounds) * 0.5f;
 	}
 
-	m_tile   = mExt[M_FLOOR].size;
-	m_radius = glm::max(mExt[M_VWALL].size.x, mExt[M_HWALL].size.y) + 0.2f;
+	m_tile   = mExt[M_FLOOR].size; 
+	m_wallThick = glm::max(mExt[M_VWALL].size.x, mExt[M_HWALL].size.y);
+	m_radius = m_wallThick + 0.2f;
 
 	Generate();
 
 	mModelManager.InstanceModel(mRooms, M_FLOOR);
+	
+	Character::Config cfg;
+	cfg.idleModel = "Core/Assets/idel.obj";
+	cfg.walkModels = { "Core/Assets/walk.obj"};
+	mHero = std::make_unique<Character>(cfg);
+
+	mHero->Spawn(SpawnPoint());
 	for (int i = 1; i < M_COUNT; ++i)
 		mModelManager.InstanceModel(mInst[i], i);       // empty vectors are fine
 
@@ -404,9 +412,22 @@ void Dungeon::BuildDecor()
 // Collision
 // ============================================================================
 
-bool Dungeon::Blocked(glm::vec2 p) const
+glm::vec3 Dungeon::SpawnPoint() const
 {
-	const float r = m_radius;
+	Cell c = mCells.empty() ? Cell{ 0, 0 } : mCells[0];
+	if (!rooms.empty()) {
+		Room* r = rooms[0];
+		Cell mid{ (int)((r->qv.x + r->qv.w) * 0.5f), (int)((r->qv.y + r->qv.h) * 0.5f) };
+		if (IsFloorCell(mid.first, mid.second)) c = mid;
+	}
+	glm::vec2 p = CellCenter(c);
+	return { p.x, p.y, GroundZ() };
+}
+
+// the entity never gets closer to an edge than a wall is thick
+bool Dungeon::Blocked(glm::vec2 p, float radius) const
+{
+	const float r = glm::max(radius, m_wallThick);
 	const glm::vec2 corners[4] = {
 		{ p.x - r, p.y - r }, { p.x + r, p.y - r },
 		{ p.x - r, p.y + r }, { p.x + r, p.y + r }
@@ -427,19 +448,20 @@ bool Dungeon::Blocked(glm::vec2 p) const
 	return false;
 }
 
-// axes are tested separately so you slide along walls instead of sticking
+glm::vec2 Dungeon::MoveEntity(glm::vec2 pos, glm::vec2 delta, float radius) const
+{
+	if (!Blocked({ pos.x + delta.x, pos.y }, radius)) pos.x += delta.x;
+	if (!Blocked({ pos.x, pos.y + delta.y }, radius)) pos.y += delta.y;
+	return pos;
+}
+
+// Move(): use the shared function
 void Dungeon::Move(glm::vec3 delta)
 {
-	delta.z = 0.f;                      // walking: ignore look pitch
-
 	glm::vec3& pos = m_manager.mCamera.mPos;
-	glm::vec2 p(pos.x, pos.y);
-
-	if (!Blocked({ p.x + delta.x, p.y })) p.x += delta.x;
-	if (!Blocked({ p.x, p.y + delta.y })) p.y += delta.y;
-
-	pos.x = p.x;
-	pos.y = p.y;
+	glm::vec2 np = MoveEntity({ pos.x, pos.y }, { delta.x, delta.y }, m_radius);
+	pos.x = np.x;
+	pos.y = np.y;
 }
 
 bool Dungeon::OnHazard(const glm::vec3& pos) const
@@ -449,6 +471,33 @@ bool Dungeon::OnHazard(const glm::vec3& pos) const
 		    pos.y > s.min.y && pos.y < s.max.y)
 			return true;
 	return false;
+}
+
+// how far back the camera can go before a wall gets in the way
+float Dungeon::CameraClearance(const glm::vec3& target, const glm::vec3& dir, float maxDist) const
+{
+	const float step = 0.1f;
+	float d = 0.f;
+	for (float t = step; t <= maxDist; t += step) {
+		glm::vec3 p = target + dir * t;
+		if (Blocked({ p.x, p.y }, 0.15f)) break;
+		d = t;
+	}
+	return d;
+}
+
+void Dungeon::UpdateCamera()
+{
+	auto& cam = m_manager.mCamera;
+
+	// look at the head, not the feet
+	glm::vec3 target = mHero->Position() + glm::vec3(0.f, 0.f, mHero->Height() * 0.85f);
+	glm::vec3 back = -glm::normalize(cam.mFront);
+
+	float dist = glm::max(CameraClearance(target, back, m_camDist), 0.3f);
+	glm::vec3 p = target + back * dist;
+	p.z = glm::max(p.z, GroundZ() + 0.2f);          // never go under the floor
+	cam.mPos = p;
 }
 
 // ============================================================================
@@ -474,8 +523,15 @@ void Dungeon::Render(const float& dt)
 	            1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	ImGui::End();
 
+	mHero->Update(*this, mHeroDir, dt);
+	mHeroDir = glm::vec2(0.f);
+	UpdateCamera();
+
+	m_manager.useShader(ShaderType::OBJECT);
+
 	m_manager.updateMVP(glm::vec3(0.0), ShaderType::OBJECT);
 	mModelManager.DrawInstance(m_manager.mShaders, ShaderType::OBJECT);
+	mHero->Render(m_manager);
 
 	if (Collision::Detect(mEnemy.GetBoundingBox(),  mEnemy.mPosition,
 	                      mEnemy1.GetBoundingBox(), mEnemy1.mPosition)) {
@@ -493,31 +549,31 @@ void Dungeon::Render(const float& dt)
 	}
 }
 
+
+
 void Dungeon::keyHandle(const float& dt)
 {
 	const float Speed = 3.0f * dt;
 
-	KeyBind::BindKeyOnHold(GLFW_KEY_W, [this, Speed]() {
-		Move(Speed * m_manager.mCamera.mFront);
-	});
-	KeyBind::BindKeyOnHold(GLFW_KEY_S, [this, Speed]() {
-		Move(-Speed * m_manager.mCamera.mFront);
-	});
-	KeyBind::BindKeyOnHold(GLFW_KEY_A, [this, Speed]() {
-		Move(Speed * glm::normalize(glm::cross(m_manager.mCamera.mUp, m_manager.mCamera.mFront)));
-	});
-	KeyBind::BindKeyOnHold(GLFW_KEY_D, [this, Speed]() {
-		Move(-Speed * glm::normalize(glm::cross(m_manager.mCamera.mUp, m_manager.mCamera.mFront)));
-	});
-
-	KeyBind::BindKeyPress(GLFW_KEY_ESCAPE, [this]() {
-		m_manager.CursorOn(!m_manager.isCursorEnable());
-	});
-
+	auto fwd = [this]() {
+		glm::vec2 f(m_manager.mCamera.mFront.x, m_manager.mCamera.mFront.y);
+		return glm::length(f) > 1e-4f ? glm::normalize(f) : glm::vec2(0.f, 1.f);
+		};
+	KeyBind::BindKeyOnHold(GLFW_KEY_W, [this, fwd]() { mHeroDir += fwd(); });
+	KeyBind::BindKeyOnHold(GLFW_KEY_S, [this, fwd]() { mHeroDir -= fwd(); });
+	KeyBind::BindKeyOnHold(GLFW_KEY_A, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(-f.y, f.x); });
+	KeyBind::BindKeyOnHold(GLFW_KEY_D, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(f.y, -f.x); });
+	KeyBind::BindKeyPress(GLFW_KEY_SPACE, [this]() { mHero->Jump(); });
 	KeyBind::BindKeyPress(GLFW_KEY_ENTER, [this]() {
 		const glm::vec3& e = mEnemy.mPosition;
 		const glm::vec3& c = m_manager.mCamera.mPos;
 		std::cout << "\nEnemy Pos x: " << e.x << ", y:" << e.y << ", z:" << e.z;
 		std::cout << "\nCam Pos   x: " << c.x << ", y:" << c.y << ", z:" << c.z;
 	});
+
+	KeyBind::BindKeyOnHold(GLFW_KEY_UP, [this, fwd]() { mHeroDir += fwd(); });
+	KeyBind::BindKeyOnHold(GLFW_KEY_DOWN, [this, fwd]() { mHeroDir -= fwd(); });
+	KeyBind::BindKeyOnHold(GLFW_KEY_LEFT, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(-f.y, f.x); });
+	KeyBind::BindKeyOnHold(GLFW_KEY_RIGHT, [this, fwd]() { auto f = fwd(); mHeroDir += glm::vec2(f.y, -f.x); });
+	KeyBind::BindKeyPress(GLFW_KEY_SPACE, [this]() { mHero->Jump(); });
 }

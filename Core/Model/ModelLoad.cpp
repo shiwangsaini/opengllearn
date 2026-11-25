@@ -232,8 +232,8 @@ namespace Model {
 		glm::vec3 maxBounds = glm::vec3(mesh->mAABB.mMax.x, mesh->mAABB.mMax.y, mesh->mAABB.mMax.z);
 		glm::vec3 minBounds = glm::vec3(mesh->mAABB.mMin.x, mesh->mAABB.mMin.y, mesh->mAABB.mMin.z);
 
-		boundBox.minBounds = minBounds;
-		boundBox.maxBounds = maxBounds;
+		boundBox.minBounds = glm::min(boundBox.minBounds, minBounds);
+		boundBox.maxBounds = glm::max(boundBox.maxBounds, maxBounds);
 
 		// filling vertices
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++) {

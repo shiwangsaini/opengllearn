@@ -146,6 +146,7 @@
     <ClCompile Include="Core\CollisionSystem\Collision.cpp" />
     <ClCompile Include="Core\Camera.cpp" />
     <ClCompile Include="Core\Input.cpp" />
+    <ClCompile Include="Core\Model\Character.cpp" />
     <ClCompile Include="Core\Shaders\shaders.cpp" />
     <ClCompile Include="Dependencies\GLAD\src\gl.c" />
     <ClCompile Include="Core\GameWindow.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="Core\CollisionSystem\Collision.h" />
     <ClInclude Include="Core\Camera.h" />
     <ClInclude Include="Core\Input.h" />
+    <ClInclude Include="Core\Model\Character.h" />
     <ClInclude Include="Core\Model\struct.h" />
     <ClInclude Include="Core\Shaders\shaders.h" />
     <ClInclude Include="Dependencies\GLAD\include\glad\gl.h" />

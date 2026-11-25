@@ -1,0 +1,24 @@
+# Blender 5.2.1 LTS MTL File: 'None'
+# www.blender.org
+
+newmtl Vampire_MAT1.004
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ni 1.500000
+d 1.000000
+illum 2
+map_Kd C:/Code/CPP/home/app/mixamo-mini/tmp/skins_29706d2d-e8aa-41ac-8b4d-dfd7cbcd3576.fbm/Vampire_diffuse.png
+map_Ke C:/Code/CPP/home/app/mixamo-mini/tmp/skins_29706d2d-e8aa-41ac-8b4d-dfd7cbcd3576.fbm/Vampire_emission.png
+map_Bump -bm 1.000000 C:/Code/CPP/home/app/mixamo-mini/tmp/skins_29706d2d-e8aa-41ac-8b4d-dfd7cbcd3576.fbm/Vampire_normal.png
+
+newmtl Vampire_MAT_Transparent.004
+Ns 20.000006
+Ka 1.000000 1.000000 1.000000
+Ks 1.000000 1.000000 1.000000
+Ni 1.500000
+illum 2
+map_Kd C:/Code/CPP/home/app/mixamo-mini/tmp/skins_29706d2d-e8aa-41ac-8b4d-dfd7cbcd3576.fbm/Vampire_diffuse_transparent.png
+map_Ke C:/Code/CPP/home/app/mixamo-mini/tmp/skins_29706d2d-e8aa-41ac-8b4d-dfd7cbcd3576.fbm/Vampire_emission.png
+map_d C:/Code/CPP/home/app/mixamo-mini/tmp/skins_29706d2d-e8aa-41ac-8b4d-dfd7cbcd3576.fbm/Vampire_diffuse_transparent.png
+map_Bump -bm 1.000000 C:/Code/CPP/home/app/mixamo-mini/tmp/skins_29706d2d-e8aa-41ac-8b4d-dfd7cbcd3576.fbm/Vampire_normal.png

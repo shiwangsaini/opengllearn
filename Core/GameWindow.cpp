@@ -132,16 +132,6 @@ void GameWindow::run()
         glfwPollEvents();
         gui.CreateFrame();
 
-        /*ImGui::Begin("Hey!!");
-        ImGui::Checkbox(" - Play Mode - ", &playMode);
-        ImGui::SliderFloat("Material Shine: ", &materialShine, 0.0f, 256.f);
-        ImGui::SliderFloat3("material Ambi: ", &materialAmbi.x, 0.0f, 1.f);
-        ImGui::SliderFloat3("light Ambi: ", &lightAmbi.x, 0.0f, 1.f);
-        ImGui::SliderFloat3("light diff: ", &lightDiff.x, 0.0f, 1.f);
-        ImGui::SliderFloat3("light spec: ", &lightSpec.x, 0.0f, 1.f);
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-        ImGui::End();*/
-
         current = (float)glfwGetTime();
         dt = (current - prevT);
         prevT = current;
@@ -149,7 +139,9 @@ void GameWindow::run()
         if (!io.WantCaptureKeyboard || !io.WantCaptureMouse)
         {
             if (!playMode) {
+                dungeon.keyHandle(dt);
                 inHandler.keyHandle(dt);
+
                 inHandler.scrollHandle();
             }
             else {
